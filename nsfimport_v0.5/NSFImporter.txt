@@ -1,0 +1,134 @@
+NSF Importer v0.5
+Written by Brad Smith 11/21/2011
+
+============================================================================
+This is a modified version of FamiTracker for importing NSF files into
+FamiTracker.
+
+To use the importer, open the program, go to the file menu and choose
+"Import NSF...", select an NSF file, then choose a track and a play
+time. The importer will attempt to generate a FamiTracker document
+from that NSF track. The speed/tempo settings will be at the fastest
+possible to allow the highest resolution of data to be captured.
+
+Editing is disabled deliberately to prevent anyone from using this modified
+version of FamiTracker for any purpose other than NSF import.
+
+
+The importer works by playing back the NSF internally, and reading the
+emulated hardware registers once per frame to generate FamiTracker data.
+It uses modified versions of two other open source projects:
+
+Famitracker 0.3.7 by jsr
+http://famitracker.shoodot.net/downloads.php
+
+NotSo Fatso v0.851 by Disch
+http://slickproductions.org/notsofatso.php
+
+This project inherits the GNU Public License Version 2 from the open source
+projects FamiTracker and NotSo Fatso it includes. Edits to the original
+source of these projects are marked with an EDIT comment.
+
+Only the core files of NotSo Fatso are included. NotSo Fatso and the
+importer source code are located in Source\NSF_Import. The provided
+source zip is an overlay onto the FamiTracker 0.3.7 source (available
+at the above link). Simply unzip it on top.
+
+The importer has a diagnostic option to export a debug_sound.wav file.
+This is the sound output from NotSo Fatso, not necessary for the FamiTracker
+import, but it is useful when comparing NotSo Fatso's behaviour to
+what you are getting in the import.
+
+If you received this without source code, search the FamiTracker forums,
+but if you can't find it there, contact Brad Smith at: brad@rainwarrior.ca
+
+============================================================================
+Known limitations:
+
+
+2A03/MMC5/VRC6
+
+Harware length counters are not supported by FamiTracker, and are essentially
+rounded down to the nearest frame by the import process. For the shortest
+settings the sound may turn on and off faster than a single frame and
+be missed entirely. This problem is sometimes seen in hi-hat sounds on the
+noise channel, or blips in the triangle channel.
+
+Hardware volume slides are not supported by FamiTracker, and are approximated
+once per frame. For the fastest setting this gives a small loss of smoothness;
+for other settings the difference is negligible.
+
+
+DPCM
+
+Changes to loop or length after the sample's initial trigger are not supported
+by FamiTracker, and will just continue to play with the initial setting.
+
+Sample offsets are partially supported. If a sample is played with
+a low (or no) offset first, and then a higher offset later, the higher
+offset will be picked up and the sample will be reused. If the higher offset
+is played first, there will be redundant copies of that sample. (The importer
+only does one pass, so it will not go back to replace earlier offset samples.)
+This feature seems more or less particular to FamiTracker NSFs; I have not
+yet found an example in an original NSF ROM.
+
+Raw PCM playback is not supported, though direct $4011 volume writes are (Zxx).
+If used, it may show up as a series of random looking Zxx commands.
+
+
+FDS
+
+The sound of FDS modulation tables in FamiTracker may sound very different
+than in other emulators. This is not a bug in the NSF importer, but the
+resulting import may not sound like you expect in FamiTracker. (You can export
+back to NSF to verify that it is getting the correct values.)
+
+
+VRC6
+
+FamiTracker supports only 5 bits of sawtooth volume control (0-F in volume
+channel, plus an additional bit as V00 or V01). The lowest bit is simply
+discarded.
+
+
+VRC7
+
+Pitch and patch changes mid-note are accomplished by abusing 3FF to
+avoid retriggering the tone. This seems to work okay.
+
+
+============================================================================
+Versions:
+
+v0.5 - 11/21/2011
+- Fixed inaccurate starting pitches for hardware slide.
+
+v0.4 - 11/21/2011
+- Fixed intermittent winodws dialog init problem. (Caused hang on some systems.)
+
+v0.3 - 11/20/2011
+- Updated to FamiTracker 0.3.7.
+- Hardware pitch sweep support for 2A03 square channels (Hxy, Ixy).
+- FDS modulation table and parameter support (Hxx, Ixx, Jxx).
+- DPCM now uses new note release feature instead of halt, eliminates pop to 0.
+- VRC6 supports full volume setting range (Vxx).
+
+v0.2 - 7/15/2011
+- Pattern length and starting row options.
+- Namespaced the importer and NotSo Fatso code for better separation.
+- DPCM samples now have a filename, prevents crashing.
+- Limited support for DPCM offset (Yxx).
+- DMC volume write support (Zxx).
+- DMC halt support.
+- MMC5 duty corrected (Vxx).
+- VRC7 support for frequencies outside FamiTracker's gamut.
+- VRC7 support for sustain/note release (===).
+- Prevent crash on too many frames.
+
+v0.1 - 7/08/2011
+- First release.
+- Support for all current FamiTracker expansions (2A03/FDS/MMC5/VRC6/VRC7).
+- No support for high frequency FDS modulation tables.
+
+============================================================================
+If you have questions, e-mail Brad Smith at: brad@rainwarrior.ca
