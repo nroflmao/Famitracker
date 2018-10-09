@@ -1,0 +1,8 @@
+bin/
+.idea/
+*.nes
+*.nl
+*.dbg
+*.map
+*.lua
+*.fns
